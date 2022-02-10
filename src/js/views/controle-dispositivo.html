@@ -1,0 +1,217 @@
+<style>
+
+  .oj-button-label {
+    color: #ffffff;
+  }
+
+  #modalDialogAtualizarRele #okButton .oj-button-label {
+    background-color: rgb(58, 54, 50);
+  }
+
+  #modalDialogAtualizarRele #cancelButton .oj-button-label {
+    background-color: #979899;
+  }
+
+  #modalDialogAtualizarSensor #okButton .oj-button-label {
+    background-color: rgb(58, 54, 50);
+  }
+
+  #modalDialogAtualizarSensor #cancelButton .oj-button-label {
+    background-color: #979899;
+  }
+
+  #modalDialogResetarSensor #okButton .oj-button-label {
+    background-color: rgb(58, 54, 50);
+  }
+
+  #modalDialogResetarSensor #cancelButton .oj-button-label {
+    background-color: #979899;
+  }
+
+  .ip {
+    font-size: larger;
+    font-weight: bold;
+  }
+
+  oj-form-layout {
+    max-width: 100% !important;
+  }
+
+  oj-list-view { 
+    margin-bottom: 150px;
+  }
+
+</style>
+<!--
+ Copyright (c) 2014, 2019, Oracle and/or its affiliates.
+ The Universal Permissive License (UPL), Version 1.0
+ -->
+<div class="oj-hybrid-applayout-page">
+  <div class="oj-applayout-fixed-top">
+    <!--
+      ** Oracle JET V8.0.0 hybrid mobile application header pattern.
+      ** Please see the Oracle JET Cookbook App Shell: Hybrid Mobile demos for
+      ** more information on how to use this pattern.
+    -->
+    <header role="banner" class="oj-hybrid-applayout-header">
+      <oj-module config="[[headerConfig]]"></oj-module>
+    </header>
+  </div>
+  <!-- This is where your main page content will be loaded -->
+  <div class="oj-applayout-content">
+    <div role="main" class="oj-hybrid-applayout-content">
+      <div class="oj-hybrid-padding">
+        <h1></h1>
+        <div>
+          <oj-form-layout max-columns="1" direction="row">
+            <oj-select-single
+                id="descricao-controladora"
+                label-hint="Selecione a controladora"
+                data="[[dataProviderController]]"
+                value="[[valueControllerType]]"
+                value-item="[[valueItemControllerType]]"
+                on-value-item-changed="[[updateSelectedController]]"
+              >
+            </oj-select-single>
+          </oj-form-layout>
+        </div>
+
+        <!-- Reles -->
+        <oj-bind-if test="[[showRelay]]">
+          <div class="oj-flex oj-sm-flex-items-initial oj-sm-justify-content-center">
+            <h5>
+              Relés
+            </h5>
+          </div>
+          <oj-table id='table-reles' 
+                    style="width: 100%;" 
+                    aria-label='Relés da Controladora' 
+                    data='[[dataProviderRelay]]'
+                    selection-mode = '{"row":"single"}'
+                    on-selected-changed="[[selectedChangedListenerRelay]]"
+                    columns-default.sortable="disabled"
+                    columns='{{columnArrayRelay}}' 
+                    class='oj-bg-body'>
+            <template slot="cellTemplate" data-oj-as="cell">
+              <oj-button id="button-update-relay" on-oj-action="[[openUpdateRelay]]" chroming="borderless">
+                <oj-avatar id="update-relay" role="img" aria-label="Avatar of Amy Bartlet"
+                           size="xxs" initials="AB" slot="startIcon"
+                           src="css/images/details_24.png">
+                </oj-avatar>
+              </oj-button>
+            </template>
+            <template slot="switchTemplate" data-oj-as="cell">
+              <oj-switch :id="[['switch'+cell.row.idRelesControladora]]"
+                         style="margin: 0 40% 0 40%;"
+                         value="{{onOffRelay(cell.row, event)}}">
+              </oj-switch>
+            </template>
+          </oj-table>
+        </oj-bind-if>
+
+        <oj-dialog id="modalDialogAtualizarRele" dialog-title="Relés">
+          <div slot="body">
+            <oj-input-text id="nome-rele" value="{{nomeRele}}" label-hint="Nome Relé"
+              label-edge="inside">
+            </oj-input-text>
+            </br></br>
+            <oj-input-text id="comando-ligar-rele" value="{{comandoLigar}}" label-hint="Comando Ligar"
+              label-edge="inside">
+            </oj-input-text>
+            <oj-input-text id="comando-desligar-rele" value="{{comandoDesligar}}" label-hint="Comando Desligar"
+              label-edge="inside">
+            </oj-input-text>
+          </div>
+          <div slot="footer">
+            <oj-button id="okButton" on-oj-action="[[updateRelay]]">Atualizar
+            </oj-button>
+            <oj-button id="cancelButton" on-oj-action="[[cancelUpdateRelay]]">Cancelar
+            </oj-button>
+          </div>
+        </oj-dialog>
+        <br>
+        <br>
+        <br>
+
+        <!-- Sensores -->
+        <oj-bind-if test="[[showSensor]]">
+          <div class="oj-flex oj-sm-flex-items-initial oj-sm-justify-content-center">
+            <h5>
+              Sensores
+            </h5>
+          </div>
+          <oj-table id='table-sensores' 
+                    style="width: 100%;" 
+                    aria-label='Sensores da Controladora' 
+                    data='[[dataProviderSensor]]'
+                    on-selected-changed='{{selectedChangedListenerSensor}}'
+                    selection-mode = '{"row":"single"}' 
+                    columns-default.sortable="disabled"
+                    columns='{{columnArraySensor}}' 
+                    class='oj-bg-body'>
+            <template slot="cellTemplate" data-oj-as="cell">
+              <oj-button id="button-update-sensor" on-oj-action="[[openUpdateSensor]]" chroming="borderless">
+                <oj-avatar id="update-sensor" role="img" aria-label="Avatar of Amy Bartlet"
+                           size="xxs" initials="AB" slot="startIcon"
+                           src="css/images/details_24.png">
+                </oj-avatar>
+              </oj-button>
+            </template>
+            <template slot="resetTemplate" data-oj-as="cell">
+              <oj-button :id="[['reset-sensor'+cell.row.idSensoresControladora]]"
+                         class="oj-navigationlist-item-icon icon-switch-off" 
+                         style="height: auto;" 
+                         on-oj-action="[[openResetSensor]]" 
+                         chroming="borderless">
+              </oj-button>
+            </template>
+          </oj-table>
+          <footer style="position: relative; margin-bottom: 20px; margin-top: 20px; width: 100%">
+            <oj-button 
+              id="read-sensor" 
+              style="width: 92%; margin: 2% 4% 2% 4%; background-color: rgb(240, 177, 60); border-radius: 5px;" 
+              class="oj-button-lg" 
+              on-oj-action="[[readSensor]]"
+              >
+              <span slot='startIcon' class="icon-spinner9"></span>
+              Atualizar Contadores dos Sensores
+            </oj-button>
+          </footer>
+        </oj-bind-if>
+
+        <oj-dialog id="modalDialogAtualizarSensor" dialog-title="Sensores">
+          <div slot="body">
+            <oj-input-text id="nome-sensor" value="{{nomeSensor}}" label-hint="Nome Sensor"
+              label-edge="inside">
+            </oj-input-text>
+            </br></br>
+            <oj-input-text id="comando-ler-sensor" value="{{comandoLer}}" label-hint="Comando Ler"
+              label-edge="inside">
+            </oj-input-text>
+            <oj-input-text id="comando-resetar-sensor" value="{{comandoResetar}}" label-hint="Comando Resetar"
+              label-edge="inside">
+            </oj-input-text>
+          </div>
+          <div slot="footer">
+            <oj-button id="okButton" on-oj-action="[[updateSensor]]">Atualizar
+            </oj-button>
+            <oj-button id="cancelButton" on-oj-action="[[cancelUpdateSensor]]">Cancelar
+            </oj-button>
+          </div>
+        </oj-dialog>
+
+        <oj-dialog id="modalDialogResetarSensor" dialog-title="Resetar o sensor ?">
+          <div slot="body">
+            <oj-bind-text value="[[nomeSensor()]]"></oj-bind-text>
+          </div>
+          <div slot="footer">
+            <oj-button id="okButton" on-oj-action="[[resetSensor]]">Resetar
+            </oj-button>
+            <oj-button id="cancelButton" on-oj-action="[[cancelResetSensor]]">Cancelar
+            </oj-button>
+          </div>
+        </oj-dialog>
+      </div>
+    </div>
+  </div>
+</div>

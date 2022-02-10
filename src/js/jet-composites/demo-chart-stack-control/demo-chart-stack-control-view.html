@@ -1,0 +1,25 @@
+<!--
+  Copyright (c) 2015, 2020, Oracle and/or its affiliates.
+  Licensed under The Universal Permissive License (UPL), Version 1.0
+  as shown at https://oss.oracle.com/licenses/upl/
+
+-->
+<oj-buttonset-one
+  :id="[[$uniqueId + '_buttonset1']]"
+  aria-label="Choose a stack setting"
+  disabled="[[$properties.disabled]]"
+  focus-management="[[$properties.focusManagement]]"
+  value="{{$properties.stack}}"
+  chroming="borderless"
+  display="icons"
+  class="oj-button-sm"
+>
+  <oj-option value="off">
+    <span slot="startIcon" :class="[[unstackedIcon]]"></span>
+    <span>Desempilhada</span>
+  </oj-option>
+  <oj-option value="on">
+    <span slot="startIcon" :class="[[stackedIcon]]"></span>
+    <span>Empilhada</span>
+  </oj-option>
+</oj-buttonset-one>

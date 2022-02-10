@@ -1,0 +1,8 @@
+demo-chart-stack-control:not(.oj-complete){
+  visibility: hidden;
+}
+
+/* demo-chart-stack-control{
+	min-height: 50px;
+	width: 50px;
+} */

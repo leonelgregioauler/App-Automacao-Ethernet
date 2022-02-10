@@ -1,0 +1,41 @@
+{
+  "name": "demo-chart-orientation-control",
+  "version": "1.0.0",
+  "jetVersion": "^9.0.0",
+  "displayName": "A user friendly, translatable name of the component.",
+  "description": "A chart-type-aware control for easily configuring a chart's orientation property.  Only applies to bar, line, area, line with area, combo, box plot, and funnel charts.",
+  "properties": {
+    "type": {
+      "description": "The type of chart this component will be controlling.",
+      "type": "string",
+      "enumValues": ["area", "bar", "boxPlot", "combo", "funnel", "line", "lineWithArea"]
+    },
+    "orientation": {
+      "description": "The chart orientation.",
+      "type": "string",
+      "enumValues": ["horizontal", "vertical"],
+      "value": "vertical",
+      "writeback": true
+    },
+    "focusManagement": {
+      "description": "The focusManagement property should be set to 'none' when the control is placed in a JET Toolbar.  This allows the Toolbar to manage the focus.",
+      "type": "string",
+      "enumValues": ["oneTabstop", "none"],
+      "value": "oneTabstop"
+    },
+    "disabled": {
+      "description": "Specifies whether this control should be disabled or not",
+      "type": "boolean",
+      "value": false
+    }
+  },
+  "methods": {
+
+  }, 
+  "events": {
+
+  }, 
+  "slots": {
+
+  }
+}

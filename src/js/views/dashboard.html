@@ -1,0 +1,83 @@
+<!--
+ Copyright (c) 2014, 2020, Oracle and/or its affiliates.
+ Licensed under The Universal Permissive License (UPL), Version 1.0
+ as shown at https://oss.oracle.com/licenses/upl/
+ -->
+<div class="oj-hybrid-applayout-page">
+  <div class="oj-applayout-fixed-top">
+      <!--
+       ** Oracle JET V9.0.0 hybrid mobile application header pattern.
+       ** Please see the Oracle JET Cookbook App Shell: Hybrid Mobile demos for
+       ** more information on how to use this pattern.
+    -->
+    <header role="banner" class="oj-hybrid-applayout-header">
+      <oj-module config="[[headerConfig]]"></oj-module>
+    </header>
+  </div>
+  <!-- This is where your main page content will be loaded -->
+  <div class="oj-applayout-content">
+    <div role="main" class="oj-hybrid-applayout-content">
+      <div class="oj-hybrid-padding">
+        <oj-toolbar 
+          id="myToolbar" 
+          style="display: flex; width: 185px; margin-left: 25%;"
+          aria-label="Chart Display Options Toolbar" 
+          aria-controls="barChart">
+            <!-- vertical/horizontal toggle button -->
+            <demo-chart-orientation-control 
+              id="orientationControl" 
+              type="bar" 
+              focus-management="none" 
+              orientation="{{orientationValue}}">
+            </demo-chart-orientation-control>
+            <span 
+              role="separator" 
+              aria-orientation="vertical" 
+              class="oj-toolbar-separator">
+            </span>
+            <!-- unstacked/stacked toggle button -->
+            <demo-chart-stack-control 
+              id="stackControl" 
+              type="bar" 
+              focus-management="none" 
+              stack="{{stackValue}}">
+            </demo-chart-stack-control>
+        </oj-toolbar>
+        <div id='chart-container'>
+          <oj-bind-if test="[[showGraphic]]">
+            <oj-bind-for-each data="[[dataSourcePortos]]">
+              <template data-oj-as="controladora">
+                <oj-chart 
+                  :id="[[$current.index + '_barChart']]"
+                  style="max-width: 420px; width: 100%; height: 350px; float: left; margin-bottom: 100px"
+                  type="bar" 
+                  orientation="[[orientationValue]]"
+                  data="[[controladora.data.children]]"
+                  stack="[[stackValue]]"
+                  stack-label="[[stackValue]]"
+                  selection-mode="single"
+                  animation-on-display="auto"
+                  animation-on-data-change="auto"
+                  hover-behavior="dim"
+                  legend.position="bottom"
+                  y-axis.tick-label.rendered="on"
+                  y-axis.major-tick.rendered="off"
+                  style-defaults.data-label-position="center">
+              
+                  <template slot='itemTemplate' data-oj-as='item'>
+                    <oj-chart-item 
+                      value='[[item.data.value]]'
+                      group-id='[[ [item.data.group] ]]' 
+                      series-id='[[item.data.series]]'
+                      label="[[item.data.value.toString()]]"> 
+                    </oj-chart-item>
+                  </template>
+                </oj-chart>
+              </template>
+            </oj-bind-for-each>
+          </oj-bind-if>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

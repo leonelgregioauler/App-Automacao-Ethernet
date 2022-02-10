@@ -1,0 +1,167 @@
+<style>
+
+  .oj-button-label {
+    color: #ffffff;
+  }
+
+  #modalDialogExcluirCadastro #okButton .oj-button-label {
+    background-color: rgb(58, 54, 50);
+  }
+
+  #modalDialogExcluirCadastro #cancelButton .oj-button-label {
+    background-color: #979899;
+  }
+
+  .tipo-controladora {
+    font-style: italic;
+  }
+
+  .ip {
+    font-size: larger;
+    font-weight: bold;
+  }
+
+  oj-form-layout {
+    max-width: 100% !important;
+  }
+
+  oj-list-view { 
+    margin-bottom: 150px;
+  }
+
+</style>
+<!--
+ Copyright (c) 2014, 2019, Oracle and/or its affiliates.
+ The Universal Permissive License (UPL), Version 1.0
+ -->
+<div class="oj-hybrid-applayout-page">
+  <div class="oj-applayout-fixed-top">
+    <!--
+      ** Oracle JET V8.0.0 hybrid mobile application header pattern.
+      ** Please see the Oracle JET Cookbook App Shell: Hybrid Mobile demos for
+      ** more information on how to use this pattern.
+    -->
+    <header role="banner" class="oj-hybrid-applayout-header">
+      <oj-module config="[[headerConfig]]"></oj-module>
+    </header>
+  </div>
+  <!-- This is where your main page content will be loaded -->
+  <div class="oj-applayout-content">
+    <div role="main" class="oj-hybrid-applayout-content">
+      <div class="oj-hybrid-padding">
+        <h1></h1>
+        <div>
+          <oj-form-layout max-columns="1" direction="row">
+            <oj-input-text 
+              id="descricao-controladora" 
+              value="{{descricaoControladora}}"
+              label-hint="Informe o nome da controladora"
+              on-raw-value-changed="[[handleRawValueChanged]]"
+              >
+            </oj-input-text>
+            <oj-input-text 
+              id="ip"
+              value="{{IP}}" 
+              label-hint="Informe o IP da controladora" 
+              on-raw-value-changed="[[handleRawValueChanged]]">
+            </oj-input-text>
+            <oj-input-text 
+              id="quantidade-reles"
+              value="{{quantidadeReles}}" 
+              label-hint="Informe a quantidade de relés da controladora" 
+              on-raw-value-changed="[[handleRawValueChanged]]">
+            </oj-input-text>
+            <oj-input-text 
+              id="quantidade-sensores"
+              value="{{quantidadeSensores}}" 
+              label-hint="Informe a quantidade de sensores da controladora" 
+              on-raw-value-changed="[[handleRawValueChanged]]">
+            </oj-input-text>
+            <oj-select-single
+                id="tipo-controladora"
+                label-hint="Selecione o tipo da Controladora"
+                data="[[dataProviderControllerType]]"
+                value="[[valueControllerType]]"
+                value-item="[[valueItemControllerType]]"
+                on-value-item-changed="[[updateSelectedController]]"
+              >
+            </oj-select-single>
+            <oj-button 
+              id="addButton" 
+              style="width: 40%; float: right; background-color: green; border-radius: 5px;"
+              class="oj-button-lg" 
+              on-oj-action="[[addItem]]" 
+              disabled="[[isTextAndSelecionFilled]]"
+              >
+              <span slot='startIcon' class="icon-plus"></span>
+              Adicionar
+            </oj-button>
+          </oj-form-layout>
+        </div>
+
+        <oj-bind-if test="[[show]]">
+          <oj-list-view 
+            id="listview"
+            style="margin: auto;"
+            selection-mode="single" 
+            data="[[dataProviderController]]"
+            selected="{{selectedItems}}"
+            on-current-item-changed="[[handleCurrentItemChanged]]"
+            >
+            <template slot="itemTemplate" data-oj-as="item">
+              <li>
+                <oj-list-item-layout>
+                    <span class="oj-typography-body-md oj-text-color-primary">
+                      <div class="descricao-controladora">
+                        <oj-bind-text value="[[item.data.descricaoControladora]]"></oj-bind-text>
+                        <div class="tipo-controladora">
+                          <oj-bind-text value="[[item.data.tipoControladora]]"></oj-bind-text>
+                        </div>
+                      </div>
+                      <div class="ip">
+                        <oj-bind-text value="[[item.data.IP]]"></oj-bind-text>
+                      </div>
+                    </span>
+                </oj-list-item-layout>
+              </li>
+            </template>
+          </oj-list-view>
+        </oj-bind-if>        
+      </div>
+      <footer style="position: relative; margin-bottom: 20px; margin-top: 20px; width: 100%">
+        <oj-button 
+          id="update-button" 
+          style="width: 92%; margin: 2% 4% 2% 4%; background-color: rgb(240, 177, 60); border-radius: 5px;" 
+          class="oj-button-lg" 
+          on-oj-action="[[updateSelected]]" 
+          disabled="[[isTextOrSelectionEmpty]]"
+          >
+          <span slot='startIcon' class="icon-spinner9"></span>
+          Atualizar
+        </oj-button>
+        <oj-dialog id="modalDialogExcluirCadastro" dialog-title="Excluir controladora ?">
+          <div slot="body">
+            <oj-bind-text value="[[descricaoControladora()]]"></oj-bind-text> : 
+            <oj-bind-text value="[[IP()]]"></oj-bind-text>
+          </div>
+          <div slot="footer">
+            <oj-button id="okButton" on-oj-action="[[removeSelected]]">Sim
+            </oj-button>
+            <oj-button id="cancelButton" on-oj-action="[[close]]">Não
+            </oj-button>
+          </div>
+        </oj-dialog>
+        <oj-button 
+          id="removeButton" 
+          style="width: 92%; margin: 0% 4% 2% 4%; background-color: #C80000; border-radius: 5px;" 
+          class="oj-button-lg" 
+          on-oj-action="[[open]]" 
+          disabled="[[isSelectionEmpty]]"
+          >
+          <span slot='startIcon' class="icon-bin2"></span>
+          Excluir
+        </oj-button>
+      </footer>
+    </div>
+  </div>
+</div>
