@@ -9,6 +9,7 @@ define([
   "ojs/ojknockout-keyset",
   "ojs/ojknockout",
   "ojs/ojinputtext",
+  "ojs/ojinputnumber",
   "ojs/ojlabel",
   "ojs/ojbutton",
   "ojs/ojformlayout",
@@ -33,8 +34,8 @@ define([
     self.currentIndex;
     self.descricaoControladora = ko.observable('');
     self.IP = ko.observable('');
-    self.quantidadeReles = ko.observable('');
-    self.quantidadeSensores = ko.observable('');
+    self.quantidadeReles = ko.observable();
+    self.quantidadeSensores = ko.observable();
     self.tipoControladora = ko.observableArray([ {value: 'TRANSMISSORA', label: 'TRANSMISSORA'}, 
                                                  {value: 'RECEPTORA', label: 'RECEPTORA'} ]);
     self.valueControllerType = ko.observable();
@@ -83,8 +84,8 @@ define([
         self.queryController();
         self.descricaoControladora('');
         self.IP('');
-        self.quantidadeReles('');
-        self.quantidadeSensores(''); 
+        self.quantidadeReles();
+        self.quantidadeSensores(); 
         self.tipoControladora('');
       }
     }.bind(self);
@@ -114,8 +115,8 @@ define([
       self.queryController();
       self.descricaoControladora('');
       self.IP('');
-      self.quantidadeReles('');
-      self.quantidadeSensores('');
+      self.quantidadeReles();
+      self.quantidadeSensores();
       self.tipoControladora('');
       self.close();
     }.bind(self);

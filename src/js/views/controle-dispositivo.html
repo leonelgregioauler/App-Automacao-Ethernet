@@ -28,6 +28,14 @@
     background-color: #979899;
   }
 
+  #modalDialogTemporizador span {
+    float: right;
+    font-size: 50px;
+    font-style: italic;
+    font-weight: bold;
+    color: red;
+  }
+
   .ip {
     font-size: larger;
     font-weight: bold;
@@ -101,10 +109,12 @@
               </oj-button>
             </template>
             <template slot="switchTemplate" data-oj-as="cell">
-              <oj-switch :id="[['switch'+cell.row.idRelesControladora]]"
-                         style="margin: 0 40% 0 40%;"
-                         value="{{onOffRelay(cell.row, event)}}">
-              </oj-switch>
+              <div class="oj-flex oj-lg-flex-items-initial oj-lg-justify-content-center oj-sm-flex-items-initial oj-sm-justify-content-center">
+                <oj-switch :id="[['switch'+cell.row.idRelesControladora]]"
+                           style="min-width: 0;"
+                           value="{{onOffRelay(cell.row, event)}}">
+                </oj-switch>
+              </div>
             </template>
           </oj-table>
         </oj-bind-if>
@@ -121,6 +131,14 @@
             <oj-input-text id="comando-desligar-rele" value="{{comandoDesligar}}" label-hint="Comando Desligar"
               label-edge="inside">
             </oj-input-text>
+            <oj-input-number id="temporizador" value="{{temporizador}}" label-hint="Temporizador (segundos)" min="0" max="600" step="5" disabled="[[!statusTemporizador()]]"
+              label-edge="inside">
+            </oj-input-number>
+            <div class="oj-flex oj-sm-flex-items-initial oj-sm-justify-content-flex-end">
+              <oj-switch id="status-temporizador"
+                         value="{{statusTemporizador}}">
+              </oj-switch>
+            </div>
           </div>
           <div slot="footer">
             <oj-button id="okButton" on-oj-action="[[updateRelay]]">Atualizar
@@ -128,6 +146,10 @@
             <oj-button id="cancelButton" on-oj-action="[[cancelUpdateRelay]]">Cancelar
             </oj-button>
           </div>
+        </oj-dialog>
+
+        <oj-dialog id="modalDialogTemporizador" dialog-title="Aguarde o temporizador ...">
+          <span><oj-bind-text value="[[contadorTemporizador]]"></oj-bind-text></span>
         </oj-dialog>
         <br>
         <br>

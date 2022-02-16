@@ -9,6 +9,7 @@ define([
   "../httpUtil",
   "ojs/ojknockout",
   "ojs/ojinputtext",
+  "ojs/ojinputnumber",
   "ojs/ojlabel",
   "ojs/ojbutton",
   "ojs/ojformlayout",
@@ -47,10 +48,11 @@ define([
     
     self.idRelesControladora = ko.observable();
     self.nomeRele = ko.observable();
-    //self.statusRele = ko.observable();
-    //self.isControllerActive = ko.observable();
     self.comandoLigar = ko.observable(); 
     self.comandoDesligar = ko.observable();
+    self.temporizador = ko.observable();
+    self.statusTemporizador = ko.observable();
+    self.contadorTemporizador = ko.observable();
     
     self.idSensoresControladora = ko.observable();
     self.nomeSensor = ko.observable();
@@ -123,6 +125,8 @@ define([
           self.nomeRele(selectedRow.nomeRele);
           self.comandoLigar(selectedRow.comandoLigar);
           self.comandoDesligar(selectedRow.comandoDesligar);
+          self.temporizador(selectedRow.temporizador);
+          self.statusTemporizador((selectedRow.statusTemporizador == 1 ? true : false));
         });
       }
     };
@@ -130,11 +134,33 @@ define([
     self.onOffRelay = function (value, event) {
       if ( (event) && (event.type == 'valueChanged') ) {
         let status = value.isControllerActive ? false : true;
+        let temporizador = value.temporizador;
+        let statusTemporizador = value.statusTemporizador;
+
         value.isControllerActive = status;
         
         if (status == true) {
           self.comandoLigar(value.comandoLigar);
-          self.activeRelay();
+          self.activeRelay().then( () => {
+            if (statusTemporizador) {
+              self.contadorTemporizador(temporizador);
+              document.getElementById("modalDialogTemporizador").open();
+
+              let contador = setInterval( () => {
+                temporizador--;
+                self.contadorTemporizador(temporizador);
+              }, 1000);
+
+              setTimeout( () => {
+                self.comandoDesligar(value.comandoDesligar);
+                self.disableRelay();
+                document.getElementById("modalDialogTemporizador").close();
+                self.showRelay(false);
+                self.queryControllerRelay();
+                clearInterval(contador);
+              }, temporizador * 1000);
+            }
+          })
         } else if (status == false) {
           self.comandoDesligar(value.comandoDesligar);
           self.disableRelay();
@@ -195,7 +221,7 @@ define([
     }
 
     self.updateRelay = function() {
-      DataBase.updateControllerRelay(self.idRelesControladora(), self.nomeRele(), self.comandoLigar(), self.comandoDesligar());
+      DataBase.updateControllerRelay(self.idRelesControladora(), self.nomeRele(), self.comandoLigar(), self.comandoDesligar(), self.temporizador(), self.statusTemporizador() == true ? 1 : 0);
       document.getElementById("modalDialogAtualizarRele").close();
       self.showRelay(false);
       self.queryControllerRelay();

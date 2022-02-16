@@ -9,7 +9,7 @@ define([],
 
             db.transaction(function(tx) {
                 tx.executeSql('CREATE TABLE IF NOT EXISTS CONTROLADORAS (idControladora INTEGER PRIMARY KEY AUTOINCREMENT, descricaoControladora VARCHAR2(100), IP VARCHAR2(100) NOT NULL, quantidadeReles INTEGER, quantidadeSensores INTEGER, tipoControladora VARCHAR2(20))');
-                tx.executeSql('CREATE TABLE IF NOT EXISTS RELES_CONTROLADORA (idRelesControladora INTEGER PRIMARY KEY AUTOINCREMENT, idControladora INTEGER NOT NULL, nomeRele VARCHAR2(100), comandoLigar VARCHAR2(10), comandoDesligar VARCHAR2(10), FOREIGN KEY (idControladora) REFERENCES CONTROLADORAS (idControladora))');
+                tx.executeSql('CREATE TABLE IF NOT EXISTS RELES_CONTROLADORA (idRelesControladora INTEGER PRIMARY KEY AUTOINCREMENT, idControladora INTEGER NOT NULL, nomeRele VARCHAR2(100), comandoLigar VARCHAR2(10), comandoDesligar VARCHAR2(10), temporizador NUMBER, statusTemporizador NUMBER, FOREIGN KEY (idControladora) REFERENCES CONTROLADORAS (idControladora))');
                 tx.executeSql('CREATE TABLE IF NOT EXISTS SENSORES_CONTROLADORA (idSensoresControladora INTEGER PRIMARY KEY AUTOINCREMENT, idControladora INTEGER NOT NULL, nomeSensor VARCHAR2(100), comandoLer VARCHAR2(10), comandoResetar VARCHAR2(10), FOREIGN KEY (idControladora) REFERENCES CONTROLADORAS (idControladora))');
                 console.warn("Banco de Dados criado");
             });
@@ -47,6 +47,8 @@ define([],
                     let numeroRele = 0;
                     let comandoLigar = 'X';
                     let comandoDesligar = 'x';
+                    let temporizador = 0;
+                    let statusTemporizador = 0;
                     
                     let numeroSensor = 0;
                     let comandoLer = 0;
@@ -56,7 +58,7 @@ define([],
       
                     for (let i = 0; i < quantidadeReles; i++) {
                         numeroRele = i + 1;
-                        insertControllerRelay(idControladora, 'Rele: ' + numeroRele, comandoLigar, comandoDesligar);
+                        insertControllerRelay(idControladora, 'Rele: ' + numeroRele, comandoLigar, comandoDesligar, temporizador, statusTemporizador);
                     }
 
                     for (let i = 0; i < quantidadeSensores; i++) {
@@ -74,14 +76,14 @@ define([],
         }
     }
 
-    function insertControllerRelay (idControladora, nomeRele, comandoLigar, comandoDesligar) {
+    function insertControllerRelay (idControladora, nomeRele, comandoLigar, comandoDesligar, temporizador, statusTemporizador) {
         try {
             db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
             // Migração SQLite
             //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0', location: 'default'});
 
             db.transaction(function(tx) {
-                tx.executeSql(`INSERT INTO RELES_CONTROLADORA (idControladora, nomeRele, comandoLigar, comandoDesligar) VALUES (\'${idControladora}\', \'${nomeRele}\', \'${comandoLigar}\', \'${comandoDesligar}\')`);
+                tx.executeSql(`INSERT INTO RELES_CONTROLADORA (idControladora, nomeRele, comandoLigar, comandoDesligar, temporizador, statusTemporizador) VALUES (\'${idControladora}\', \'${nomeRele}\', \'${comandoLigar}\', \'${comandoDesligar}\', \'${temporizador}\', \'${statusTemporizador}\')`);
             });
         } catch (err) {
         alert ('Erro ao cadastrar o relé da controladora'+ err);
@@ -125,8 +127,8 @@ define([],
                                 idControladora: item.idControladora,
                                 descricaoControladora: item.descricaoControladora,
                                 IP: item.IP,
-                                quantidadeReles: item.quantidadeReles,
-                                quantidadeSensores: item.quantidadeSensores,
+                                quantidadeReles: parseInt(item.quantidadeReles),
+                                quantidadeSensores: parseInt(item.quantidadeSensores),
                                 tipoControladora: item.tipoControladora
                             }
                         })
@@ -166,7 +168,9 @@ define([],
                                 idControladora: item.idControladora,
                                 nomeRele: item.nomeRele,
                                 comandoLigar: item.comandoLigar,
-                                comandoDesligar: item.comandoDesligar
+                                comandoDesligar: item.comandoDesligar,
+                                temporizador: item.temporizador,
+                                statusTemporizador: item.statusTemporizador
                             }
                         })
                         resolve(configurationRelayMap);
@@ -229,14 +233,14 @@ define([],
         }
     }
 
-    function updateControllerRelay (idRelesControladora, nomeRele, comandoLigar, comandoDesligar) {
+    function updateControllerRelay (idRelesControladora, nomeRele, comandoLigar, comandoDesligar, temporizador, statusTemporizador) {
         try {
             db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
             // Migração SQLite
             //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0'});
 
             db.transaction(function(tx) {
-                tx.executeSql(`UPDATE RELES_CONTROLADORA SET nomeRele = \'${nomeRele}\', comandoLigar = \'${comandoLigar}\', comandoDesligar = \'${comandoDesligar}\' WHERE idRelesControladora = ${idRelesControladora}`);
+                tx.executeSql(`UPDATE RELES_CONTROLADORA SET nomeRele = \'${nomeRele}\', comandoLigar = \'${comandoLigar}\', comandoDesligar = \'${comandoDesligar}\', temporizador = \'${temporizador}\', statusTemporizador = \'${statusTemporizador}\' WHERE idRelesControladora = ${idRelesControladora}`);
             });
         } catch (err) {
         alert ('Erro ao atualizar o relé da controladora '+ err);

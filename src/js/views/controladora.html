@@ -65,18 +65,24 @@
               label-hint="Informe o IP da controladora" 
               on-raw-value-changed="[[handleRawValueChanged]]">
             </oj-input-text>
-            <oj-input-text 
-              id="quantidade-reles"
+            <oj-input-number 
+              id="quantidade-reles" 
               value="{{quantidadeReles}}" 
-              label-hint="Informe a quantidade de relés da controladora" 
-              on-raw-value-changed="[[handleRawValueChanged]]">
-            </oj-input-text>
-            <oj-input-text 
+              label-hint="Informe a quantidade de relés da controladora"
+              on-raw-value-changed="[[handleRawValueChanged]]" 
+              min="0" 
+              max="8"
+              step="1">
+            </oj-input-number>
+            <oj-input-number 
               id="quantidade-sensores"
               value="{{quantidadeSensores}}" 
               label-hint="Informe a quantidade de sensores da controladora" 
-              on-raw-value-changed="[[handleRawValueChanged]]">
-            </oj-input-text>
+              on-raw-value-changed="[[handleRawValueChanged]]"
+              min="0"
+              max="5" 
+              step="1">
+            </oj-input-number>
             <oj-select-single
                 id="tipo-controladora"
                 label-hint="Selecione o tipo da Controladora"
