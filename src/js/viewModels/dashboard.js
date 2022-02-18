@@ -37,27 +37,33 @@ define(['knockout',
       self.showGraphic = ko.observable(false);
 
       self.queryController = async function () {
-        let result = await DataBase.queryController('SELECT * FROM CONTROLADORAS');
-        result.forEach( (item, idx) => {
+        let resultControl = await DataBase.queryController('SELECT * FROM CONTROLADORAS');
+        let resultSensor  = await DataBase.queryControllerSensor('SELECT * FROM SENSORES_CONTROLADORA');
+        
+        resultControl.forEach( (item, idx) => {
 
           //const controller = new AbortController();
         
           Util.callGetService(item.IP, 'statusSensores').then((response) => {
+            resultSensor.forEach( (item, idx) => {
+              response[idx].nomeSensor = item.nomeSensor;
+            });
+
             children = response;
             items.push({
                       "children": children
                     } );
-            self.dataSourcePortos = items;
+            self.dataSourceSensores = items;
 
-            const details = self.dataSourcePortos[idx].children.map((item) => {
+            const details = self.dataSourceSensores[idx].children.map((item) => {
               return {
                 id: item.id,
-                series: `Sensor ${item.id}`,
-                group: item.ctrl,
+                series: item.nomeSensor,
+                group: `MAC: ${item.ctrl}`,
                 value: parseInt(item.cont)
               }
             });
-            self.dataSourcePortos[idx].children = new ArrayDataProvider(details); 
+            self.dataSourceSensores[idx].children = new ArrayDataProvider(details); 
             
             if ( (result.length - 1) == idx) {
               self.showGraphic(true);
@@ -71,7 +77,7 @@ define(['knockout',
 
       self.stackValue = ko.observable("off");
       self.orientationValue = ko.observable("horizontal");
-      self.dataSourcePortos = items;
+      self.dataSourceSensores = items;
       
       self.connected = function() {
         accUtils.announce('Dashboard page loaded.', 'assertive');

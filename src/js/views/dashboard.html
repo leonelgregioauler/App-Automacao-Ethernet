@@ -45,7 +45,7 @@
         </oj-toolbar>
         <div id='chart-container'>
           <oj-bind-if test="[[showGraphic]]">
-            <oj-bind-for-each data="[[dataSourcePortos]]">
+            <oj-bind-for-each data="[[dataSourceSensores]]">
               <template data-oj-as="controladora">
                 <oj-chart 
                   :id="[[$current.index + '_barChart']]"
