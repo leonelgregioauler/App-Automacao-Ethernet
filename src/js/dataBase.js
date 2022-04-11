@@ -8,9 +8,11 @@ define([],
             //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0', location: 'default'});
 
             db.transaction(function(tx) {
-                tx.executeSql('CREATE TABLE IF NOT EXISTS CONTROLADORAS (idControladora INTEGER PRIMARY KEY AUTOINCREMENT, descricaoControladora VARCHAR2(100), IP VARCHAR2(100) NOT NULL, quantidadeReles INTEGER, quantidadeSensores INTEGER, tipoControladora VARCHAR2(20))');
-                tx.executeSql('CREATE TABLE IF NOT EXISTS RELES_CONTROLADORA (idRelesControladora INTEGER PRIMARY KEY AUTOINCREMENT, idControladora INTEGER NOT NULL, nomeRele VARCHAR2(100), comandoLigar VARCHAR2(10), comandoDesligar VARCHAR2(10), temporizador NUMBER, statusTemporizador NUMBER, FOREIGN KEY (idControladora) REFERENCES CONTROLADORAS (idControladora))');
-                tx.executeSql('CREATE TABLE IF NOT EXISTS SENSORES_CONTROLADORA (idSensoresControladora INTEGER PRIMARY KEY AUTOINCREMENT, idControladora INTEGER NOT NULL, nomeSensor VARCHAR2(100), comandoLer VARCHAR2(10), comandoResetar VARCHAR2(10), FOREIGN KEY (idControladora) REFERENCES CONTROLADORAS (idControladora))');
+                tx.executeSql('CREATE TABLE IF NOT EXISTS CONTROLADORAS (idControladora INTEGER PRIMARY KEY AUTOINCREMENT, descricaoControladora VARCHAR2(100) NOT NULL, IP VARCHAR2(100) NOT NULL, quantidadeReles INTEGER NOT NULL, quantidadeSensores INTEGER NOT NULL, tipoControladora VARCHAR2(20))');
+                tx.executeSql('CREATE TABLE IF NOT EXISTS RELES_CONTROLADORA (idReleControladora INTEGER PRIMARY KEY AUTOINCREMENT, idControladora INTEGER NOT NULL, nomeRele VARCHAR2(100), comandoLigar VARCHAR2(10), comandoDesligar VARCHAR2(10), temporizador NUMBER, statusTemporizador NUMBER, FOREIGN KEY (idControladora) REFERENCES CONTROLADORAS (idControladora))');
+                tx.executeSql('CREATE TABLE IF NOT EXISTS SENSORES_CONTROLADORA (idSensorControladora INTEGER PRIMARY KEY AUTOINCREMENT, idControladora INTEGER NOT NULL, nomeSensor VARCHAR2(100), comandoLer VARCHAR2(10), comandoResetar VARCHAR2(10), FOREIGN KEY (idControladora) REFERENCES CONTROLADORAS (idControladora))');
+                tx.executeSql('CREATE TABLE IF NOT EXISTS LOG_ACIONAMENTOS (idLogAcionamento INTEGER PRIMARY KEY AUTOINCREMENT, idControladora INTEGER NOT NULL, numeroMAC VARCHAR2(50), dataRegistro DATE, diaRegistro NUMBER, mesRegistro NUMBER, anoRegistro NUMBER, horaRegistro NUMBER, FOREIGN KEY (idControladora) REFERENCES CONTROLADORAS (idControladora), UNIQUE (dataRegistro, horaRegistro))');
+                tx.executeSql('CREATE TABLE IF NOT EXISTS LOG_ACIONAMENTOS_SENSORES (idLogAcionamentoSensor INTEGER PRIMARY KEY AUTOINCREMENT, idLogAcionamento INTEGER NOT NULL, idSensorControladora INTEGER, contadorSensor INTEGER, FOREIGN KEY (idLogAcionamento) REFERENCES LOG_ACIONAMENTOS (idLogAcionamento), FOREIGN KEY (idSensorControladora) REFERENCES SENSORES_CONTROLADORA (idSensorControladora))'); 
                 console.warn("Banco de Dados criado");
             });
         } catch (err) {
@@ -28,6 +30,8 @@ define([],
                 tx.executeSql('DROP TABLE CONTROLADORAS');
                 tx.executeSql('DROP TABLE RELES_CONTROLADORA');
                 tx.executeSql('DROP TABLE SENSORES_CONTROLADORA');
+                tx.executeSql('DROP TABLE LOG_ACIONAMENTOS');
+                tx.executeSql('DROP TABLE LOG_ACIONAMENTOS_SENSORES');
             });
         } catch (err) {
         alert ('Erro ao remover tabelas '+ err);
@@ -104,6 +108,50 @@ define([],
         }
     }
 
+    function initializeLogTriggering (dataLog) {
+        try {
+            db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
+            // Migração SQLite
+            //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0', location: 'default'});
+            const date = new Date();
+            const diaRegistro = date.getDate();
+            const mesRegistro = date.getMonth() + 1;
+            const anoRegistro = date.getFullYear();
+            const dataRegistro = date.toLocaleDateString('pt-br');
+
+            const horasDia = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+            
+            let idLogAcionamento = 0;
+
+            db.transaction(function(tx) {
+                dataLog.forEach( (item) => {
+                    for (i of horasDia) {
+                      tx.executeSql(`INSERT INTO LOG_ACIONAMENTOS (idControladora, numeroMAC, dataRegistro, diaRegistro, mesRegistro, anoRegistro, horaRegistro) VALUES (\'${item.idControladora}\', \'${item.numeroMac}\', \'${dataRegistro}\', \'${diaRegistro}\', \'${mesRegistro}\', \'${anoRegistro}\', \'${i}\')`
+                        , [], function(tx, result) {
+
+                            idLogAcionamento = result.insertId;
+
+                            initializeLogTriggeringSensor(idLogAcionamento, item.sensores, tx);
+
+                      }, null);
+                    }
+                })
+            });
+        } catch (err) {
+        alert ('Erro ao registrar o log da controladora'+ err);
+        }
+    }
+
+    function initializeLogTriggeringSensor (idLogAcionamento, sensores, tx) {
+        try {
+            sensores.forEach( (sensor) => {
+              tx.executeSql(`INSERT INTO LOG_ACIONAMENTOS_SENSORES (idLogAcionamento, idSensorControladora, contadorSensor) VALUES (\'${idLogAcionamento}\', \'${sensor.idSensorControladora}\', 0) `);
+            })
+        } catch (err) {
+        alert ('Erro ao cadastrar o relé da controladora'+ err);
+        }
+    }
+
     function queryController (query) {
         var configuration = [];
         var configurationMap = [];
@@ -155,16 +203,14 @@ define([],
                 db.transaction(function(tx) {
                     tx.executeSql(query, [], function(tx, result) {
                         
-                        debugger;
                         for (relay of result.rows) {
                             console.log(result.rows);
                             configurationRelay.push(relay);
                         }
 
-
                         configurationRelayMap = configurationRelay.map((item) => {
                             return {
-                                idRelesControladora: item.idRelesControladora,
+                                idReleControladora: item.idReleControladora,
                                 idControladora: item.idControladora,
                                 nomeRele: item.nomeRele,
                                 comandoLigar: item.comandoLigar,
@@ -202,7 +248,7 @@ define([],
 
                         configurationSensorMap = configurationSensor.map((item) => {
                             return {
-                                idSensoresControladora: item.idSensoresControladora,
+                                idSensorControladora: item.idSensorControladora,
                                 idControladora: item.idControladora,
                                 nomeSensor: item.nomeSensor,
                                 comandoLer: item.comandoLer,
@@ -210,6 +256,89 @@ define([],
                             }
                         })
                         resolve(configurationSensorMap);
+                    }, reject);
+                });
+            });
+        } catch (err) {
+          alert('Erro ao consultar o sensor da controladora ' + err);
+        }
+        return configurationSensor;
+    }
+
+    function queryLogTriggering (query) {
+        var logSensor = [];
+        var logSensorMap = [];
+        try {
+            db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
+            // Migração SQLite
+            //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0', location: 'default'});
+
+            return new Promise( (resolve, reject) => {
+
+                db.transaction(function(tx) {
+                    tx.executeSql(query, [], function(tx, result) {
+                        
+                        for (log of result.rows) {
+                            logSensor.push(log);
+                        }
+
+                        logSensorMap = logSensor.map((item) => {
+                            return {
+                                idLogAcionamento: item.idLogAcionamento,
+                                idControladora: item.idControladora,
+                                numeroMAC: item.numeroMAC,
+                                dataRegistro: item.dataRegistro,
+                                diaRegistro: item.diaRegistro,
+                                mesRegistro: item.mesRegistro,
+                                anoRegistro: item.anoRegistro,
+                                horaRegistro: item.horaRegistro
+                            }
+                        })
+                        resolve(logSensorMap);
+                    }, reject);
+                });
+            });
+        } catch (err) {
+          alert('Erro ao consultar o sensor da controladora ' + err);
+        }
+        return configurationSensor;
+    }
+
+    function queryLogTriggeringSensor (query) {
+        var logSensor = [];
+        var logSensorMap = [];
+        try {
+            db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
+            // Migração SQLite
+            //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0', location: 'default'});
+
+            return new Promise( (resolve, reject) => {
+
+                db.transaction(function(tx) {
+                    tx.executeSql(query, [], function(tx, result) {
+                        
+                        for (log of result.rows) {
+                            logSensor.push(log);
+                        }
+
+                        logSensorMap = logSensor.map((item) => {
+                            return {
+                                idLogAcionamentoSensor: item.idLogAcionamentoSensor,
+                                idLogAcionamento: item.idLogAcionamento,
+                                idControladora: item.idControladora,
+                                numeroMAC: item.numeroMAC,
+                                dataRegistro: item.dataRegistro,
+                                diaRegistro: item.diaRegistro,
+                                mesRegistro: item.mesRegistro,
+                                anoRegistro: item.anoRegistro,
+                                horaRegistro: item.horaRegistro,
+                                idLogAcionamento: item.idLogAcionamento,
+                                idSensorControladora: item.idSensorControladora,
+                                nomeSensor: item.nomeSensor,
+                                contadorSensor: item.contadorSensor
+                            }
+                        })
+                        resolve(logSensorMap);
                     }, reject);
                 });
             });
@@ -233,31 +362,56 @@ define([],
         }
     }
 
-    function updateControllerRelay (idRelesControladora, nomeRele, comandoLigar, comandoDesligar, temporizador, statusTemporizador) {
+    function updateControllerRelay (idReleControladora, nomeRele, comandoLigar, comandoDesligar, temporizador, statusTemporizador) {
         try {
             db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
             // Migração SQLite
             //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0'});
 
             db.transaction(function(tx) {
-                tx.executeSql(`UPDATE RELES_CONTROLADORA SET nomeRele = \'${nomeRele}\', comandoLigar = \'${comandoLigar}\', comandoDesligar = \'${comandoDesligar}\', temporizador = \'${temporizador}\', statusTemporizador = \'${statusTemporizador}\' WHERE idRelesControladora = ${idRelesControladora}`);
+                tx.executeSql(`UPDATE RELES_CONTROLADORA SET nomeRele = \'${nomeRele}\', comandoLigar = \'${comandoLigar}\', comandoDesligar = \'${comandoDesligar}\', temporizador = \'${temporizador}\', statusTemporizador = \'${statusTemporizador}\' WHERE idReleControladora = ${idReleControladora}`);
             });
         } catch (err) {
         alert ('Erro ao atualizar o relé da controladora '+ err);
         }
     }
 
-    function updateControllerSensor (idSensoresControladora, nomeSensor, comandoLer, comandoResetar) {
+    function updateControllerSensor (idSensorControladora, nomeSensor, comandoLer, comandoResetar) {
         try {
             db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
             // Migração SQLite
             //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0', location: 'default'});
 
             db.transaction(function(tx) {
-                tx.executeSql(`UPDATE SENSORES_CONTROLADORA SET nomeSensor = \'${nomeSensor}\', comandoLer = \'${comandoLer}\', comandoResetar = \'${comandoResetar}\' WHERE idSensoresControladora = ${idSensoresControladora}`);
+                tx.executeSql(`UPDATE SENSORES_CONTROLADORA SET nomeSensor = \'${nomeSensor}\', comandoLer = \'${comandoLer}\', comandoResetar = \'${comandoResetar}\' WHERE idSensorControladora = ${idSensorControladora}`);
             });
         } catch (err) {
         alert ('Erro ao atualizar o sensor da controladora '+ err);
+        }
+    }
+
+    function updateLogTriggeringSensor (dataLog) {
+        try {
+            db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
+            // Migração SQLite
+            //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0', location: 'default'});
+            
+            const date = new Date();
+            const horaRegistro = date.getHours();
+            const dataRegistro = date.toLocaleDateString('pt-br');
+
+            queryLogTriggering(`SELECT idLogAcionamento FROM LOG_ACIONAMENTOS WHERE dataRegistro = \'${dataRegistro}\' AND horaRegistro = \'${horaRegistro}\' `).then( (idLog) => {
+                
+                db.transaction(function(tx) {
+                    dataLog.forEach( (ctrl) => {
+                        ctrl.sensores.forEach( (item) => {
+                            tx.executeSql(`UPDATE LOG_ACIONAMENTOS_SENSORES SET contadorSensor = \'${parseInt(item.contadorSensor)}\' WHERE idLogAcionamento = \'${idLog[0].idLogAcionamento}\' AND idSensorControladora = \'${item.idSensorControladora}\' `);
+                        })
+                    })
+                });
+            })
+        } catch (err) {
+        alert ('Erro ao cadastrar o relé da controladora'+ err);
         }
     }
 
@@ -268,6 +422,7 @@ define([],
             //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0'});
 
             db.transaction(function(tx) {
+                tx.executeSql(`DELETE FROM LOG_ACIONAMENTO_SENSORES WHERE idControladora = ${idControladora}`);
                 tx.executeSql(`DELETE FROM SENSORES_CONTROLADORA WHERE idControladora = ${idControladora}`);
                 tx.executeSql(`DELETE FROM RELES_CONTROLADORA WHERE idControladora = ${idControladora}`);
                 tx.executeSql(`DELETE FROM CONTROLADORAS WHERE idControladora = ${idControladora}`);
@@ -284,10 +439,14 @@ define([],
              insertController: insertController,
              insertControllerRelay: insertControllerRelay,
              insertControllerSensor: insertControllerSensor,
+             initializeLogTriggering: initializeLogTriggering,
+             updateLogTriggeringSensor: updateLogTriggeringSensor,
 
              queryController: queryController,
              queryControllerRelay: queryControllerRelay,
              queryControllerSensor: queryControllerSensor,
+             queryLogTriggering: queryLogTriggering,
+             queryLogTriggeringSensor: queryLogTriggeringSensor,
 
              updateController: updateController,
              updateControllerRelay: updateControllerRelay,

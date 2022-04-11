@@ -110,7 +110,7 @@
             </template>
             <template slot="switchTemplate" data-oj-as="cell">
               <div class="oj-flex oj-lg-flex-items-initial oj-lg-justify-content-center oj-sm-flex-items-initial oj-sm-justify-content-center">
-                <oj-switch :id="[['switch'+cell.row.idRelesControladora]]"
+                <oj-switch :id="[['switch'+cell.row.idReleControladora]]"
                            style="min-width: 0;"
                            value="{{onOffRelay(cell.row, event)}}">
                 </oj-switch>
@@ -180,7 +180,7 @@
               </oj-button>
             </template>
             <template slot="resetTemplate" data-oj-as="cell">
-              <oj-button :id="[['reset-sensor'+cell.row.idSensoresControladora]]"
+              <oj-button :id="[['reset-sensor'+cell.row.idSensorControladora]]"
                          class="oj-navigationlist-item-icon icon-switch-off" 
                          style="height: auto;" 
                          on-oj-action="[[openResetSensor]]" 

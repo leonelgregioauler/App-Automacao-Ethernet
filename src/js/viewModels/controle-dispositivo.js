@@ -46,7 +46,7 @@ define([
     self.controladora = ko.observable();
     self.idControladora = ko.observable();
     
-    self.idRelesControladora = ko.observable();
+    self.idReleControladora = ko.observable();
     self.nomeRele = ko.observable();
     self.comandoLigar = ko.observable(); 
     self.comandoDesligar = ko.observable();
@@ -54,7 +54,7 @@ define([
     self.statusTemporizador = ko.observable();
     self.contadorTemporizador = ko.observable();
     
-    self.idSensoresControladora = ko.observable();
+    self.idSensorControladora = ko.observable();
     self.nomeSensor = ko.observable();
     self.contadorSensor = ko.observable();
     self.comandoLer = ko.observable(); 
@@ -107,10 +107,10 @@ define([
         console.log("Erro ao consultar dados dos sensores: " + error + ' ' + e);
       })
     };
-    self.dataProviderRelay = new ArrayDataProvider(self.dataControllerRelay , {keyAttributes: "idRelesControladora"} );
+    self.dataProviderRelay = new ArrayDataProvider(self.dataControllerRelay , {keyAttributes: "idReleControladora"} );
 
     self.columnArrayRelay = ko.observableArray([
-      { headerText: "Ações", field: "idRelesControladora", headerStyle: "text-align: center", width: "50", style: "text-align: center", template: "cellTemplate", class: "oj-helper-text-align-center"},
+      { headerText: "Ações", field: "idReleControladora", headerStyle: "text-align: center", width: "50", style: "text-align: center", template: "cellTemplate", class: "oj-helper-text-align-center"},
       { headerText: "Nome do Relé", field: "nomeRele", headerStyle: "text-align: center", width: "80", style: "text-align: center"},
       { headerText: "Ligar / Desligar", field: "isControllerActive", headerStyle: "text-align: center", width: "60", template: "switchTemplate"}
     ]);
@@ -119,8 +119,8 @@ define([
       const row = event.detail.value.row;
       if (row.values().size > 0) {
         row.values().forEach(function (key) {
-          var selectedRow = self.dataControllerRelay().find(s => s.idRelesControladora === key);
-          self.idRelesControladora(key);
+          var selectedRow = self.dataControllerRelay().find(s => s.idReleControladora === key);
+          self.idReleControladora(key);
           self.idControladora(selectedRow.idControladora);
           self.nomeRele(selectedRow.nomeRele);
           self.comandoLigar(selectedRow.comandoLigar);
@@ -185,10 +185,10 @@ define([
         console.log("Erro ao consultar dados dos sensores: " + error + ' ' + e);
       })
     };
-    self.dataProviderSensor = new ArrayDataProvider(self.dataControllerSensor , {keyAttributes: "idSensoresControladora"} );
+    self.dataProviderSensor = new ArrayDataProvider(self.dataControllerSensor , {keyAttributes: "idSensorControladora"} );
 
     self.columnArraySensor = ko.observableArray([
-      { headerText: "Ações", field: "idSensoresControladora", headerStyle: "text-align: center", width: "50", style: "text-align: center", template: "cellTemplate", class: "oj-helper-text-align-center"},
+      { headerText: "Ações", field: "idSensorControladora", headerStyle: "text-align: center", width: "50", style: "text-align: center", template: "cellTemplate", class: "oj-helper-text-align-center"},
       { headerText: "Nome do Sensor", field: "nomeSensor", headerStyle: "text-align: center", width: "100", style: "text-align: center"},
       { headerText: "Contador", field: "contadorSensor", headerStyle: "text-align: center", width: "80", style: "text-align: center"},
       { headerText: "Resetar", headerStyle: "text-align: center", width: "40", style: "text-align: center", template: "resetTemplate", class: "oj-helper-text-align-center"}
@@ -198,8 +198,8 @@ define([
       const row = event.detail.value.row;
       if (row.values().size > 0) {
         row.values().forEach(function (key) {
-          var selectedRow = self.dataControllerSensor().find(s => s.idSensoresControladora === key);
-          self.idSensoresControladora(key);
+          var selectedRow = self.dataControllerSensor().find(s => s.idSensorControladora === key);
+          self.idSensorControladora(key);
           self.idControladora(selectedRow.idControladora);
           self.nomeSensor(selectedRow.nomeSensor);
           self.comandoLer(selectedRow.comandoLer);
@@ -221,7 +221,7 @@ define([
     }
 
     self.updateRelay = function() {
-      DataBase.updateControllerRelay(self.idRelesControladora(), self.nomeRele(), self.comandoLigar(), self.comandoDesligar(), self.temporizador(), self.statusTemporizador() == true ? 1 : 0);
+      DataBase.updateControllerRelay(self.idReleControladora(), self.nomeRele(), self.comandoLigar(), self.comandoDesligar(), self.temporizador(), self.statusTemporizador() == true ? 1 : 0);
       document.getElementById("modalDialogAtualizarRele").close();
       self.showRelay(false);
       self.queryControllerRelay();
@@ -232,7 +232,7 @@ define([
     }
 
     self.updateSensor = function() {
-      DataBase.updateControllerSensor(self.idSensoresControladora(), self.nomeSensor(), self.comandoLer(), self.comandoResetar());
+      DataBase.updateControllerSensor(self.idSensorControladora(), self.nomeSensor(), self.comandoLer(), self.comandoResetar());
       document.getElementById("modalDialogAtualizarSensor").close();
       self.showSensor(false);
       self.queryControllerSensor();
