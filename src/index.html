@@ -29,7 +29,7 @@
   <head>
     <title>Automação Ethernet</title>
     <meta charset="UTF-8">
-    <!-- <meta http-equiv="Content-Security-Policy" content="default-src *; script-src 'self' *.oracle.com  'unsafe-inline' 'unsafe-eval'; style-src 'self' *.oracle.com 'unsafe-inline'; img-src * data:"> -->
+    <meta http-equiv="Content-Security-Policy" content="default-src *; script-src 'self' *.oracle.com  'unsafe-inline' 'unsafe-eval'; style-src 'self' *.oracle.com 'unsafe-inline'; img-src * data:">
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <link rel="icon" href="css/images/favicon.ico" type="image/x-icon" />
 
@@ -39,9 +39,13 @@
     <!-- endinjector -->
     <!-- This contains icon fonts used by the starter template -->
     <link rel="stylesheet" href="css/demo-alta-site-min.css" type="text/css"/>
-    <link rel="stylesheet" id="uxiconFont" href="https://static.oracle.com/cdn/fnd/gallery/2010.0.0/images/iconfont/ojuxIconFont.min.css">
-    <link rel="stylesheet" id="uxiconFont" href="https://static.oracle.com/cdn/fnd/gallery/2010.0.0/images/iconfont/ojuxIconFont.css">
     
+
+    <!-- <link rel="stylesheet" id="uxiconFont" href="https://static.oracle.com/cdn/fnd/gallery/2010.0.0/images/iconfont/ojuxIconFont.min.css">
+    <link rel="stylesheet" id="uxiconFont" href="https://static.oracle.com/cdn/fnd/gallery/2010.0.0/images/iconfont/ojuxIconFont.css">-->
+    <!-- Feito download dos CSSs do CDN da Oracle para a pasta css e importado arquivos de fonte do mesmo repositório para a pasta css/fonts -->
+    <link rel="stylesheet" id="uxiconFont" href="css/ojuxIconFont.min.css" type="text/css"/>
+    <link rel="stylesheet" id="uxiconFont" href="css/ojuxIconFont.css" type="text/css"/>
     <!-- This is where you would add any app specific styling -->
     <link rel="stylesheet" href="css/app.css" type="text/css"/>
 
