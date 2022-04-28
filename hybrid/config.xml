@@ -7,7 +7,9 @@
     <author email="dev@cordova.apache.org" href="http://cordova.io">
         Apache Cordova Team
     </author>
+
     <plugin name="cordova-plugin-whitelist" spec="1" />
+    <plugin name="cordova-plugin-splashscreen" spec="*"/>
 
     <content src="index.html" />
     <access origin="*" />
@@ -17,6 +19,23 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+
+    <engine name="android" />
+    <engine name="browser" />
+
+    <preference name="Orientation" value="portrait" />
+    <preference name="Fullscreen" value="true" />
+    <preference name="DisallowOverscroll" value="true" />
+    
+    <platform name="browser">
+      <preference name="SplashScreen" value="res/screen/windows/SplashScreen.scale-100.png" /> <!-- defaults to "/img/logo.png" -->
+      <preference name="AutoHideSplashScreen" value="true" /> <!-- defaults to "true" -->
+      <preference name="SplashScreenDelay" value="3000" /> <!-- defaults to "3000" -->
+      <preference name="ShowSplashScreen" value="true" /> <!-- defaults to "true" -->
+      <preference name="SplashScreenWidth" value="1240" /> <!-- defaults to "170" -->
+      <preference name="SplashScreenHeight" value="600" /> <!-- defaults to "200" -->
+      <preference name="SplashScreenSpinnerColor" value="DarkRed"/>
+    </platform>
     <platform name="windows">
       <preference name="windows-target-version" value="10.0" />
       <preference name="SplashScreenDelay" value="0" />
