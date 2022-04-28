@@ -8,8 +8,12 @@
         Apache Cordova Team
     </author>
 
-    <plugin name="cordova-plugin-whitelist" spec="1" />
+    <plugin name="cordova-plugin-background-mode" spec="*"/>
+    <plugin name="cordova-plugin-device" spec="*"/>
+    <plugin name="cordova-plugin-inappbrowser" spec="*"/>
     <plugin name="cordova-plugin-splashscreen" spec="*"/>
+    <plugin name="cordova-plugin-whitelist" spec="1" />
+    <plugin name="cordova-sqlite-storage" spec="1" />
 
     <content src="index.html" />
     <access origin="*" />
