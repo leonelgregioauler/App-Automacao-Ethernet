@@ -15,12 +15,13 @@ define(['knockout',
         '../httpUtil',
         '../dataBase',
         'ojs/ojarraydataprovider',
+        '../fireBase',
         'ojs/ojchart',
         'ojs/ojtoolbar',
         'ojs/ojbutton',
         'jet-composites/demo-chart-orientation-control/1.0.0/loader',
         'jet-composites/demo-chart-stack-control/1.0.0/loader'],
- function(ko, app, moduleUtils, accUtils, Util, DataBase, ArrayDataProvider) {
+ function(ko, app, moduleUtils, accUtils, Util, DataBase, ArrayDataProvider, FireBase) {
 
     function DashboardViewModel() {
       var self = this;

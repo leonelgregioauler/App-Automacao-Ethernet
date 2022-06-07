@@ -7,6 +7,7 @@ define([
   "../dataBase",
   "ojs/ojarraydataprovider",
   "ojs/ojknockout-keyset",
+  "../fireBase",
   "ojs/ojknockout",
   "ojs/ojinputtext",
   "ojs/ojinputnumber",
@@ -18,7 +19,7 @@ define([
   "ojs/ojlistitemlayout",
   "ojs/ojdialog",
   "ojs/ojselectsingle"
-], function (ko, app, moduleUtils, accUtils, Context, DataBase, ArrayDataProvider, keySet) {
+], function (ko, app, moduleUtils, accUtils, Context, DataBase, ArrayDataProvider, keySet, FireBase) {
   function ControladoraViewModel() {
     var self = this; 
 
@@ -38,6 +39,7 @@ define([
     self.quantidadeSensores = ko.observable();
     self.tipoControladora = ko.observableArray([ {value: 'TRANSMISSORA', label: 'TRANSMISSORA'}, 
                                                  {value: 'RECEPTORA', label: 'RECEPTORA'} ]);
+    self.codigoFireBase = ko.observable();                                                 
     self.valueControllerType = ko.observable();
     self.valueItemControllerType = ko.observable();
 
@@ -45,6 +47,9 @@ define([
     self.show = ko.observable(false);
 
     self.queryController = async function () {
+      
+      FireBase.sincronyzeDataBaseFireBase(DataBase);
+      
       let result = await DataBase.queryController('SELECT * FROM CONTROLADORAS');   
       self.dataController(result);
       self.show(true);
@@ -79,7 +84,7 @@ define([
     self.addItem = function () {
       var itemToAdd = self.IP();
       if ((itemToAdd !== '')) {
-        DataBase.insertController(self.descricaoControladora(), self.IP(), self.quantidadeReles(), self.quantidadeSensores(), self.tipoControladora().label);
+        DataBase.insertController(self.descricaoControladora(), self.IP(), self.quantidadeReles(), self.quantidadeSensores(), self.tipoControladora().value, null);
         self.show(false);
         self.queryController();
         self.descricaoControladora('');
@@ -90,11 +95,15 @@ define([
       }
     }.bind(self);
   
-    self.updateSelected = function () {
+    self.updateSelected = async function () {
       var itemToReplace = self.dataController()[self.currentIndex];
       self.dataController.splice(self.currentIndex, 1,
-        { value: itemToReplace.value, label: self.IP(), idControladora: itemToReplace.idControladora, descricaoControladora: self.descricaoControladora(), IP: self.IP(), quantidadeReles: self.quantidadeReles(), quantidadeSensores: self.quantidadeSensores(), tipoControladora: self.tipoControladora().label });
-        DataBase.updateController(itemToReplace.value, self.descricaoControladora(), self.IP(), self.quantidadeReles(), self.quantidadeSensores(), self.tipoControladora().label);
+        { value: itemToReplace.value, label: self.descricaoControladora(), idControladora: itemToReplace.idControladora, descricaoControladora: self.descricaoControladora(), IP: self.IP(), quantidadeReles: self.quantidadeReles(), quantidadeSensores: self.quantidadeSensores(), tipoControladora: self.tipoControladora().value, codigoFireBase: itemToReplace.codigoFireBase });
+        
+        DataBase.updateController(itemToReplace.idControladora, self.descricaoControladora(), self.IP(), self.quantidadeReles(), self.quantidadeSensores(), self.tipoControladora().value, itemToReplace.codigoFireBase);
+
+        FireBase.sincronyzeDataBaseFireBase(DataBase);
+    
     }.bind(self);
   
     self.close = function(event) {
@@ -111,6 +120,7 @@ define([
         return config.label !== self.IP();
       })
       DataBase.deleteController(itemToRemove.idControladora);
+      //FireBase.excluirFirebase(itemToRemove.codigoFireBase);
       self.show(false);
       self.queryController();
       self.descricaoControladora('');
@@ -137,6 +147,7 @@ define([
           self.quantidadeSensores(items[i].quantidadeSensores);
           self.tipoControladora(items[i].tipoControladora);
           self.valueControllerType(items[i].tipoControladora);
+          self.codigoFireBase(items[i].codigoFireBase);
           break;
         }
       }

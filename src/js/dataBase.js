@@ -1,5 +1,5 @@
-define([],
-  function () {
+define(['fireBase'],
+  function (FireBase) {
 
     function createDataBase () { 
         try {
@@ -8,7 +8,7 @@ define([],
             //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0', location: 'default'});
 
             db.transaction(function(tx) {
-                tx.executeSql('CREATE TABLE IF NOT EXISTS CONTROLADORAS (idControladora INTEGER PRIMARY KEY AUTOINCREMENT, descricaoControladora VARCHAR2(100) NOT NULL, IP VARCHAR2(100) NOT NULL, quantidadeReles INTEGER NOT NULL, quantidadeSensores INTEGER NOT NULL, tipoControladora VARCHAR2(20))');
+                tx.executeSql('CREATE TABLE IF NOT EXISTS CONTROLADORAS (idControladora INTEGER PRIMARY KEY AUTOINCREMENT, descricaoControladora VARCHAR2(100) NOT NULL, IP VARCHAR2(100) NOT NULL, quantidadeReles INTEGER NOT NULL, quantidadeSensores INTEGER NOT NULL, tipoControladora VARCHAR2(20), ativo BOOLEAN, codigoFireBase VARCHAR2(40), UNIQUE (codigoFireBase))');
                 tx.executeSql('CREATE TABLE IF NOT EXISTS RELES_CONTROLADORA (idReleControladora INTEGER PRIMARY KEY AUTOINCREMENT, idControladora INTEGER NOT NULL, nomeRele VARCHAR2(100), comandoLigar VARCHAR2(10), comandoDesligar VARCHAR2(10), temporizador NUMBER, statusTemporizador NUMBER, FOREIGN KEY (idControladora) REFERENCES CONTROLADORAS (idControladora))');
                 tx.executeSql('CREATE TABLE IF NOT EXISTS SENSORES_CONTROLADORA (idSensorControladora INTEGER PRIMARY KEY AUTOINCREMENT, idControladora INTEGER NOT NULL, nomeSensor VARCHAR2(100), comandoLer VARCHAR2(10), comandoResetar VARCHAR2(10), FOREIGN KEY (idControladora) REFERENCES CONTROLADORAS (idControladora))');
                 tx.executeSql('CREATE TABLE IF NOT EXISTS LOG_ACIONAMENTOS (idLogAcionamento INTEGER PRIMARY KEY AUTOINCREMENT, idControladora INTEGER NOT NULL, numeroMAC VARCHAR2(50), dataRegistro DATE, diaRegistro NUMBER, mesRegistro NUMBER, anoRegistro NUMBER, horaRegistro NUMBER, FOREIGN KEY (idControladora) REFERENCES CONTROLADORAS (idControladora), UNIQUE (dataRegistro, horaRegistro))');
@@ -38,14 +38,16 @@ define([],
         }
     }
 
-    function insertController (descricaoControladora, IP, quantidadeReles, quantidadeSensores, tipoControladora) {
+    function insertController (descricaoControladora, IP, quantidadeReles, quantidadeSensores, tipoControladora, codigoFireBase) {
         try {
             db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
             // Migração SQLite
             //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0', location: 'default'});
 
+            const ativo = 'S';
+
             db.transaction(function(tx) {
-                tx.executeSql(`INSERT INTO CONTROLADORAS (descricaoControladora, IP, quantidadeReles, quantidadeSensores, tipoControladora) VALUES (\'${descricaoControladora}\', \'${IP}\', \'${quantidadeReles}\', \'${quantidadeSensores}\', \'${tipoControladora}\')`
+                tx.executeSql(`INSERT INTO CONTROLADORAS (descricaoControladora, IP, quantidadeReles, quantidadeSensores, tipoControladora, ativo, codigoFireBase) VALUES (\'${descricaoControladora}\', \'${IP}\', \'${quantidadeReles}\', \'${quantidadeSensores}\', \'${tipoControladora}\', \'${ativo}\', \'${codigoFireBase}\')`
                              , [], function(tx, result) {
 
                     let numeroRele = 0;
@@ -59,7 +61,7 @@ define([],
                     let comandoResetar = 0;
                     
                     let idControladora = result.insertId;
-      
+                    
                     for (let i = 0; i < quantidadeReles; i++) {
                         numeroRele = i + 1;
                         insertControllerRelay(idControladora, 'Rele: ' + numeroRele, comandoLigar, comandoDesligar, temporizador, statusTemporizador);
@@ -72,11 +74,30 @@ define([],
                     }
                                  
                 }, null);
-                
-            
             });
         } catch (err) {
-        alert ('Erro ao cadastrar a controladora'+ err);
+            alert ('Erro ao cadastrar a controladora'+ err);
+        }
+    }
+
+    function insertControllerObject (controller, relay, sensor) {
+        try {
+            db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
+            // Migração SQLite
+            //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0', location: 'default'});
+
+            db.transaction(function(tx) {
+                tx.executeSql(`INSERT INTO CONTROLADORAS (idControladora, descricaoControladora, IP, quantidadeReles, quantidadeSensores, tipoControladora, ativo, codigoFireBase) VALUES (\'${controller.idControladora}\', \'${controller.descricaoControladora}\', \'${controller.IP}\', \'${controller.quantidadeReles}\', \'${controller.quantidadeSensores}\', \'${controller.tipoControladora}\', \'${controller.ativo}\', \'${controller.codigoFireBase}\')`
+                             , [], function(tx, result) {
+
+                    //insertControllerRelay(relay.idControladora, 'Rele: ' + relay.numeroRele, relay.comandoLigar, relay.comandoDesligar, relay.temporizador, relay.statusTemporizador);
+                    
+                    //insertControllerSensor(sensor.idControladora, 'Sensor: ' + sensor.numeroSensor, sensor.comandoLer, sensor.comandoResetar);
+                                 
+                }, null);
+            });
+        } catch (err) {
+            alert ('Erro ao cadastrar a controladora'+ err);
         }
     }
 
@@ -138,7 +159,7 @@ define([],
                 })
             });
         } catch (err) {
-        alert ('Erro ao registrar o log da controladora'+ err);
+            alert ('Erro ao registrar o log da controladora'+ err);
         }
     }
 
@@ -164,7 +185,7 @@ define([],
                 db.transaction(function(tx) {
                     tx.executeSql(query, [], function(tx, result) {
                         
-                        for (i of result.rows) {
+                        for (let i = 0; i < result.rows.length; i++) {
                             configuration.push(result.rows.item(i));
                         }
 
@@ -177,7 +198,8 @@ define([],
                                 IP: item.IP,
                                 quantidadeReles: parseInt(item.quantidadeReles),
                                 quantidadeSensores: parseInt(item.quantidadeSensores),
-                                tipoControladora: item.tipoControladora
+                                tipoControladora: item.tipoControladora,
+                                codigoFireBase: item.codigoFireBase
                             }
                         })
                         resolve(configurationMap);
@@ -348,14 +370,14 @@ define([],
         return configurationSensor;
     }
     
-    function updateController (idControladora, descricaoControladora, IP, quantidadeReles, tipoControladora) {
+    function updateController (idControladora, descricaoControladora, IP, quantidadeReles, quantidadeSensores, tipoControladora, codigoFireBase) {
         try {
             db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
             // Migração SQLite
             //db = window.sqlitePlugin.openDatabase ({name: 'App-Industria-4.0', location: 'default'});
 
             db.transaction(function(tx) {
-                tx.executeSql(`UPDATE CONTROLADORAS SET descricaoControladora = \'${descricaoControladora}\', IP = \'${IP}\', quantidadeReles = ${quantidadeReles}, tipoControladora = \'${tipoControladora}\' WHERE idControladora = ${idControladora}`);
+                tx.executeSql(`UPDATE CONTROLADORAS SET descricaoControladora = \'${descricaoControladora}\', IP = \'${IP}\', quantidadeReles = ${quantidadeReles}, quantidadeSensores = ${quantidadeSensores}, tipoControladora = \'${tipoControladora}\', codigoFireBase = \'${codigoFireBase}\' WHERE idControladora = ${idControladora}`);
             });
         } catch (err) {
         alert ('Erro ao atualizar a controladora '+ err);
@@ -437,6 +459,7 @@ define([],
              dropDataBase: dropDataBase,
 
              insertController: insertController,
+             insertControllerObject: insertControllerObject,
              insertControllerRelay: insertControllerRelay,
              insertControllerSensor: insertControllerSensor,
              initializeLogTriggering: initializeLogTriggering,
