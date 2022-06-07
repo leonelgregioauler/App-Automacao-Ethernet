@@ -1,9 +1,9 @@
 define([], 
   function () {
-    function HttpUtil() {
+    //function HttpUtil() {
       var self = this;
 
-      self.callGetService = async function (IP, comando) {
+      async function callGetService (IP, comando) {
       
         let url = `http://${IP}/${comando}`; 
         //const controller = new AbortController();
@@ -25,7 +25,10 @@ define([],
           })
         }) 
       }
-    }
-    return new HttpUtil();
+      return {
+        callGetService
+      };
+    //}
+   //return new HttpUtil();
   });
   
