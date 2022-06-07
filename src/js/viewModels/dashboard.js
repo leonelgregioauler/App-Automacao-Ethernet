@@ -142,12 +142,13 @@ define(['knockout',
       self.dataSourceSensores = items;
       self.dataSourceLogSensores = itemsLog;
 
-      
       self.connected = function() {
         accUtils.announce('Dashboard page loaded.', 'assertive');
         document.title = "Dashboard";
         self.queryController();
         self.queryLogSensor();
+
+        console.log("Connected: " + cordova.file);
         
         const myInterval = setInterval( () => {
           self.showGraphic(false);
@@ -164,7 +165,97 @@ define(['knockout',
       self.transitionCompleted = function() {
         // Implement if needed
       };
-    }
+
+      document.addEventListener("deviceready", onDeviceReady, true);
+      window.addEventListener('filePluginIsReady', function() { 
+        console.log('File plugin is ready');
+      }, false);
+
+      function onDeviceReady() {
+        console.log("On Device Ready: " +  cordova.file);
+
+        /*window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
+
+          console.log('file system open: ' + fs.name);
+          fs.root.getFile("newPersistentFile.txt", { create: true, exclusive: false }, function (fileEntry) {
+          
+          console.log("fileEntry is file?" + fileEntry.isFile.toString());
+          // fileEntry.name == 'someFile.txt'
+          // fileEntry.fullPath == '/someFile.txt'
+          writeFile(fileEntry, fileEntry.name);
+          
+          }, onErrorCreateFile);
+          
+        }, onErrorLoadFs); */
+        /* ou */
+        window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024, function (fs) {
+
+          console.log('file system open: ' + fs.name);
+          createFile(fs.root, "newTempFile.txt", false);
+      
+        }, onErrorLoadFs);
+      
+        function writeFile(fileEntry, dataObj) {
+          // Create a FileWriter object for our FileEntry (log.txt).
+          fileEntry.createWriter(function (fileWriter) {
+      
+              fileWriter.onwriteend = function() {
+                  console.log("Successful file write...");
+                  readFile(fileEntry);
+              };
+      
+              fileWriter.onerror = function (e) {
+                  console.log("Failed file write: " + e.toString());
+              };
+      
+              // If data object is not passed in,
+              // create a new Blob instead.
+              //if (!dataObj) {
+                  dataObj = new Blob(['some file data'], { type: 'text/plain' });
+              //}
+      
+              fileWriter.write(dataObj);
+          });
+        }
+
+        function readFile(fileEntry) {
+
+          fileEntry.file(function (file) {
+              var reader = new FileReader();
+      
+              reader.onloadend = function() {
+                  console.log("Successful file read: " + this.result);
+                  //displayFileData(fileEntry.fullPath + ": " + this.result);
+              };
+      
+              reader.readAsText(file);
+      
+          }, onErrorReadFile);
+        }
+
+        function createFile(dirEntry, fileName, isAppend) {
+          // Creates a new file or returns the file if it already exists.
+          dirEntry.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {
+      
+              writeFile(fileEntry, fileName, isAppend);
+      
+          }, onErrorCreateFile);
+      
+        }
+      }
+ 
+      function onErrorCreateFile () {
+        console.log("onErrorCreateFile");
+      }
+
+      function onErrorLoadFs () {
+        console.log("onErrorLoadFs");
+      }
+
+      function onErrorReadFile () {
+        console.warn("onErrorReadFile");
+      }
+    }    
 
     /*
      * Returns an instance of the ViewModel providing one instance of the ViewModel. If needed,

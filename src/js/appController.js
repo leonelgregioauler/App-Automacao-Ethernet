@@ -9,8 +9,8 @@
  * Your application specific code will go here
  */
 define(['knockout', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojknockoutrouteradapter', 'ojs/ojurlparamadapter', 'ojs/ojthemeutils', 'ojs/ojmodule-element-utils', 'ojs/ojmoduleanimations', 'ojs/ojarraydataprovider', 'ojs/ojknockouttemplateutils', 'ojs/ojknockout', 'ojs/ojmodule-element'],
-  function(ko, CoreRouter, ModuleRouterAdapter, KnockoutRouterAdapter, UrlParamAdapter, ThemeUtils, moduleUtils, ModuleAnimations, ArrayDataProvider, KnockoutTemplateUtils) {
-     function ControllerViewModel() {
+  function (ko, CoreRouter, ModuleRouterAdapter, KnockoutRouterAdapter, UrlParamAdapter, ThemeUtils, moduleUtils, ModuleAnimations, ArrayDataProvider, KnockoutTemplateUtils) {
+    function ControllerViewModel() {
       var self = this;
 
       self.KnockoutTemplateUtils = KnockoutTemplateUtils;
@@ -22,7 +22,7 @@ define(['knockout', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojkno
       document.getElementById('globalBody').addEventListener('announce', announcementHandler, false);
 
       function announcementHandler(event) {
-        setTimeout(function() {
+        setTimeout(function () {
           self.message(event.detail.message);
           self.manner(event.detail.manner);
         }, 200);
@@ -45,7 +45,7 @@ define(['knockout', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojkno
 
       this.moduleAdapter = new ModuleRouterAdapter(router, {
         animationCallback: platform === 'android' ?
-          function(animationContext) { return 'fade' }
+          function (animationContext) { return 'fade' }
           : undefined
       });
 
@@ -53,10 +53,10 @@ define(['knockout', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojkno
 
       // Setup the navDataProvider with the routes, excluding the first redirected
       // route.
-      this.navDataProvider = new ArrayDataProvider(navData.slice(1), {keyAttributes: "path"});
+      this.navDataProvider = new ArrayDataProvider(navData.slice(1), { keyAttributes: "path" });
 
       // Used by modules to get the current page title and adjust padding
-      self.getHeaderModel = function() {
+      self.getHeaderModel = function () {
         // Return an object containing the current page title
         // and callback handler
         return {
@@ -75,10 +75,10 @@ define(['knockout', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojkno
         var bottomElem = document.getElementsByClassName('oj-applayout-fixed-bottom')[0];
 
         if (topElem) {
-          contentElem.style.paddingTop = topElem.offsetHeight+'px';
+          contentElem.style.paddingTop = topElem.offsetHeight + 'px';
         }
         if (bottomElem) {
-          contentElem.style.paddingBottom = bottomElem.offsetHeight+'px';
+          contentElem.style.paddingBottom = bottomElem.offsetHeight + 'px';
         }
         // Add oj-complete marker class to signal that the content area can be unhidden.
         // See the override.css file to see when the content area is hidden.
@@ -100,6 +100,16 @@ define(['knockout', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojkno
 
       }, false);
       */
+
+      console.log("App Controller: " + cordova);
+
+      document.addEventListener("deviceready", function () {
+        console.log("App Controller Device Ready" + cordova);
+      }, true);
+
+      window.addEventListener('filePluginIsReady', function () {
+        console.log("App Controller File plugin is ready" + cordova);
+      }, false);
     }
 
     return new ControllerViewModel();

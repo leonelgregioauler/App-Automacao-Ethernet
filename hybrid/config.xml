@@ -13,8 +13,22 @@
     <plugin name="cordova-plugin-inappbrowser" spec="*"/>
     <plugin name="cordova-plugin-splashscreen" spec="*"/>
     <plugin name="cordova-plugin-whitelist" spec="1" />
-    <plugin name="cordova-sqlite-storage" spec="1" />
+    <plugin name="cordova-plugin-file" spec="6.0.0" />
+    <plugin name="cordova-plugin-file-transfer" spec="1" />
+    
+    <!-- <plugin name="cordova-plugin-usb-event" spec="1" /> -->
 
+    <plugin name="cordova-plugin-dialogs" spec="1" />
+    
+    
+
+
+    <preference name="AndroidPersistentFileLocation" value="Internal" />
+    <!-- <preference name="AndroidPersistentFileLocation" value="Compatibility" /> -->
+
+    <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,assets,root" />
+    
+    
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
