@@ -38,7 +38,7 @@ define(['fireBase'],
         }
     }
 
-    function insertController (descricaoControladora, IP, quantidadeReles, quantidadeSensores, tipoControladora, codigoFireBase) {
+    function insertController (idControladora, descricaoControladora, IP, quantidadeReles, quantidadeSensores, tipoControladora, codigoFireBase) {
         try {
             db = openDatabase ('App-Industria-4.0', 1.0, 'App Indústria 4.0', 2 * 1024 * 1024);
             // Migração SQLite
@@ -47,7 +47,8 @@ define(['fireBase'],
             const ativo = 'S';
 
             db.transaction(function(tx) {
-                tx.executeSql(`INSERT INTO CONTROLADORAS (descricaoControladora, IP, quantidadeReles, quantidadeSensores, tipoControladora, ativo, codigoFireBase) VALUES (\'${descricaoControladora}\', \'${IP}\', \'${quantidadeReles}\', \'${quantidadeSensores}\', \'${tipoControladora}\', \'${ativo}\', \'${codigoFireBase}\')`
+
+                tx.executeSql(`INSERT OR REPLACE INTO CONTROLADORAS (idControladora, descricaoControladora, IP, quantidadeReles, quantidadeSensores, tipoControladora, ativo, codigoFireBase) VALUES (\'${idControladora}\', \'${descricaoControladora}\', \'${IP}\', \'${quantidadeReles}\', \'${quantidadeSensores}\', \'${tipoControladora}\', \'${ativo}\', \'${codigoFireBase}\')`
                              , [], function(tx, result) {
 
                     let numeroRele = 0;
