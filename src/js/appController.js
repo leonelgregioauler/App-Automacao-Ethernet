@@ -33,6 +33,7 @@ define(['knockout', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojkno
 
       var navData = [
         { path: '', redirect: 'dashboard' },
+        { path: 'login', detail: { label: 'Login', iconClass: 'oj-navigationlist-item-icon icon-stats-bars2' } },
         { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-navigationlist-item-icon icon-stats-bars2' } },
         { path: 'controladora', detail: { label: 'Configurações', iconClass: 'oj-navigationlist-item-icon icon-uniE609' } },
         { path: 'controle-dispositivo', detail: { label: 'Controles', iconClass: 'oj-navigationlist-item-icon icon-uniE607' } },

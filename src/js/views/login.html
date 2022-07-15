@@ -1,0 +1,87 @@
+<style>
+
+  .oj-button-label {
+    color:white !important;
+    font-size: medium;
+  }
+
+  .esqueceu-sua-senha {
+    margin-left: 25%;
+    margin-right: 25%;
+    padding: 20px;
+  }
+
+  #esqueciSenhaButton .oj-button-label,
+  #novaContaButton .oj-button-label {
+    color:black !important;
+  }
+
+  oj-form-layout {
+    max-width: 100% !important;
+    margin: 30% 0% 30% 0%;
+    height: 40%;
+  }
+
+
+</style>
+<!--
+ Copyright (c) 2014, 2020, Oracle and/or its affiliates.
+ Licensed under The Universal Permissive License (UPL), Version 1.0
+ as shown at https://oss.oracle.com/licenses/upl/
+ -->
+<div class="oj-hybrid-applayout-page">
+  <div class="oj-applayout-fixed-top">
+      <!--
+       ** Oracle JET V9.1.0 hybrid mobile application header pattern.
+       ** Please see the Oracle JET Cookbook App Shell: Hybrid Mobile demos for
+       ** more information on how to use this pattern.
+    -->
+    <header role="banner" class="oj-hybrid-applayout-header">
+      <oj-module config="[[headerConfig]]"></oj-module>
+    </header>
+  </div>
+  <!-- This is where your main page content will be loaded -->
+  <div class="oj-applayout-content">
+    <div role="main" class="oj-hybrid-applayout-content">
+      <div class="oj-hybrid-padding">
+        <div>
+          <oj-form-layout max-columns="1" direction="row">
+            <oj-input-text id="usuario" value="{{nomeUsuario}}" label-hint="Informe o nome do Usuário"></oj-input-text>
+            <oj-input-password id="senha" value="{{senhaUsuario}}" label-hint="Informe a senha"></oj-input-password>
+
+            <oj-button 
+              id="loginButton" 
+              style="width: 92%; margin: 0% 4% 2% 4%; background-color: green; border-radius: 5px;"
+              class="oj-button-lg" 
+              on-oj-action="[[handleSignIn]]" 
+              >Login
+            </oj-button>
+            <oj-button 
+              id="esqueciSenhaButton" 
+              style="width: 92%; margin: 0% 4% 2% 4%; border-radius: 5px;"
+              class="oj-button-lg" 
+              on-oj-action="[[handleForgotPassword]]">
+              <span slot="startIcon" class="icon-question"></span>
+              Esqueceu a Senha
+            </oj-button>
+            <oj-button 
+              id="novaContaButton" 
+              style="width: 92%; margin: 0% 4% 2% 4%; border-radius: 5px;"
+              class="oj-button-lg" 
+              on-oj-action="[[handleNewAccount]]">
+              <span slot="startIcon" class="icon-user"></span>
+              Criar Usuário
+            </oj-button>
+            <!-- <oj-button 
+              id="sairSenhaButton" 
+              style="width: 92%; margin: 0% 4% 2% 4%; background-color: green; border-radius: 5px;"
+              class="oj-button-lg" 
+              on-oj-action="[[handleSignOut]]">
+              Sair
+            </oj-button> -->
+          </oj-form-layout>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
