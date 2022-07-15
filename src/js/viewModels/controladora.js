@@ -46,6 +46,19 @@ define([
     self.dataController = ko.observableArray([]);
     self.show = ko.observable(false);
 
+    const subscribe = FireBase.firebase.firestore()
+      .collection("controladoras")
+      .onSnapshot(querySnapshot => {
+        const data = querySnapshot.docs.map(doc => {
+            return {
+                id: doc.id,
+                ...doc.data()
+            }
+        })
+        self.dataController(data);       
+    })
+
+
     self.queryController = async function () {
       
       FireBase.sincronyzeDataBaseFireBase(DataBase);
