@@ -21,7 +21,8 @@ define(['services/firebase',
                 IP: IP,
                 quantidadeReles: quantidadeReles,
                 quantidadeSensores: quantidadeSensores,
-                tipoControladora: tipoControladora
+                tipoControladora: tipoControladora,
+                created_at: firebase.firestore.FieldValue.serverTimestamp()
             })
             .then((docRef) => {
                 resolve(docRef.id);
@@ -89,7 +90,8 @@ define(['services/firebase',
                 quantidadeReles : quantidadeReles,
                 quantidadeSensores : quantidadeSensores,
                 tipoControladora : tipoControladora,
-                codigoFireBase : codigoFireBase
+                codigoFireBase : codigoFireBase,
+                created_at: firebase.firestore.FieldValue.serverTimestamp()
             })
             .then(() => {
                 resolve(codigoFireBase)
@@ -126,23 +128,31 @@ define(['services/firebase',
         let result = await DataBase.queryController('SELECT * FROM CONTROLADORAS');
         let codigoFireBase;
 
+        // registros criados no próprio APP 
+           // - se ainda não sincronizou com o FireBase (não tem o codigo Firebase), cria no Firebase. 
+           // - se já sincronizou com o Firebase (tem o codigo Firebase), atualiza os dados no Firebase.
         result.forEach( async (ctrl) => {
           ctrl.codigoFireBase ?
             codigoFireBase = await atualizarFirebase(ctrl.descricaoControladora, ctrl.IP, ctrl.quantidadeReles, ctrl.quantidadeSensores, ctrl.tipoControladora, ctrl.codigoFireBase) :
             codigoFireBase = await inserirFirebase(ctrl.idControladora, ctrl.descricaoControladora, ctrl.IP, ctrl.quantidadeReles, ctrl.quantidadeSensores, ctrl.tipoControladora);
           
+            // Atualiza o codigo Firebase na tabela
             DataBase.updateController(ctrl.idControladora, ctrl.descricaoControladora, ctrl.IP, ctrl.quantidadeReles, ctrl.quantidadeSensores, ctrl.tipoControladora, codigoFireBase)
         });
 
+        // registros criados em outro APP
+          // consulta na nuvem
         let controladoras = await consultarFirebase();
         let relays = /* await consultarFirebase(); */ { idControladora: 2, nomeRele: "Rele 99", comandoLigar: "Y", comandoDesligar: "Z", temporizador: 88, statusTemporizador: 0 };
         let sensors = /* await consultarFirebase(); */ { idControladora: 2, nomeSensor: "Sensor 99", comandoLer: 0, comandoResetar: 99 };
 
-        /* controladoras.forEach( (ctrl) => {
-            DataBase.insertController(ctrl.data().descricaoControladora, ctrl.data().IP, ctrl.data().quantidadeReles, ctrl.data().quantidadeSensores, ctrl.data().tipoControladora, ctrl.data().codigoFireBase);
-        }) */
+        // cria os registros novos. Caso o outro APP tenha atualizado Dados, atualiza aqui.
+        controladoras.forEach( (ctrl) => {
+            DataBase.insertController(ctrl.data().idControladora, ctrl.data().descricaoControladora, ctrl.data().IP, ctrl.data().quantidadeReles, ctrl.data().quantidadeSensores, ctrl.data().tipoControladora, ctrl.data().codigoFireBase);
+        }) 
 
-        controladoras.forEach( (item) => {
+        /* depois que implementar o insert + update eu volto para este do objeto */
+        /* controladoras.forEach( (item) => {
             let ctrl = {
                 idControladora : item.data().idControladora,
                 descricaoControladora : item.data().descricaoControladora,
@@ -154,7 +164,7 @@ define(['services/firebase',
                 codigoFireBase : item.data().codigoFireBase
             }
             DataBase.insertControllerObject(ctrl, relays, sensors);
-        })
+        }) */
     }
 
     const firebaseConfig = {
@@ -168,8 +178,8 @@ define(['services/firebase',
     };
     
     const app = firebase.initializeApp(firebaseConfig);
-    const analytics = firebase.analytics(app);
-    
+    const analytics = firebase.analytics(app); 
+
     return {
         inserirFirebase : inserirFirebase,
         consultarFirebase: consultarFirebase,
